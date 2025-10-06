@@ -99,8 +99,13 @@ class CmWalletApplication : Application() {
                     credentials = openid4vpRegistry.credentials,
                     matcher = openId4VP1_0Matcher
                 ) {})
+            }
+        }
 
-                // Phone number verification demo
+        // Listen for PNV token changes and re-register
+        applicationScope.launch {
+            credentialRepo.pnvTokenDataSource.tokens.collect { pnvTokens ->
+                Log.i(TAG, "PNV tokens changed, re-registering ${pnvTokens.size} tokens")
                 credentialRepo.registerPhoneNumberVerification(registryManager, loadPhoneNumberMatcher())
             }
         }

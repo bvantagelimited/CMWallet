@@ -26,9 +26,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
@@ -58,6 +60,22 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val openCredentialDialog = remember { mutableStateOf<CredentialItem?>(null) }
+    var showPnvManagement by remember { mutableStateOf(false) }
+
+    // Handle navigation
+    LaunchedEffect(uiState.navigateToPnvManagement) {
+        if (uiState.navigateToPnvManagement) {
+            showPnvManagement = true
+            viewModel.onPnvManagementNavigated()
+        }
+    }
+
+    if (showPnvManagement) {
+        PnvTokenManagementScreen(
+            onNavigateBack = { showPnvManagement = false }
+        )
+        return
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -75,7 +93,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .padding(10.dp)
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 val activity = LocalActivity.current as MainActivity
                 Button(
@@ -84,6 +102,13 @@ fun HomeScreen(
                     }
                 ) {
                     Text("Test Issuance")
+                }
+                Button(
+                    onClick = {
+                        viewModel.navigateToPnvManagement()
+                    }
+                ) {
+                    Text("Manage PNV Tokens")
                 }
             }
             HorizontalDivider(thickness = 2.dp)

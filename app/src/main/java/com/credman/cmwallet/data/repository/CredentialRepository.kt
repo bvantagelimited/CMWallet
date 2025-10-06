@@ -22,11 +22,13 @@ import com.credman.cmwallet.data.model.CredentialDisplayData
 import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.data.model.CredentialKeySoftware
 import com.credman.cmwallet.data.source.CredentialDatabaseDataSource
+import com.credman.cmwallet.data.source.PnvTokenDataSource
 import com.credman.cmwallet.data.source.TestCredentialsDataSource
 import com.credman.cmwallet.decodeBase64
 import com.credman.cmwallet.decodeBase64UrlNoPadding
 import com.credman.cmwallet.mdoc.MDoc
 import com.credman.cmwallet.openid4vci.OpenId4VCI
+import kotlinx.coroutines.flow.first
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationMDoc
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationSdJwtVc
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationUnknownFormat
@@ -54,6 +56,7 @@ class CredentialRepository {
 
     private val testCredentialsDataSource = TestCredentialsDataSource()
     private val credentialDatabaseDataSource = CredentialDatabaseDataSource()
+    internal val pnvTokenDataSource = PnvTokenDataSource()
 
     private fun combinedCredentials(): Flow<List<CredentialItem>> = flow {
         emitAll(
@@ -93,17 +96,20 @@ class CredentialRepository {
 
     @OptIn(ExperimentalDigitalCredentialApi::class)
     suspend fun registerPhoneNumberVerification(registryManager: RegistryManager, pnvMatcher: ByteArray) {
-        val testPhoneNumberTokens = listOf(
-            PnvTokenRegistry.TEST_PNV_1_GET_PHONE_NUMBER,
-            PnvTokenRegistry.TEST_PNV_1_VERIFY_PHONE_NUMBER,
-            PnvTokenRegistry.TEST_PNV_2_VERIFY_PHONE_NUMBER
-        )
+        // Get tokens from database instead of hardcoded values
+        var pnvTokens = pnvTokenDataSource.tokens.first()
+        
+        // If no tokens in database, initialize with defaults
+        if (pnvTokens.isEmpty()) {
+            pnvTokenDataSource.initializeDefaultTokens()
+            pnvTokens = pnvTokenDataSource.tokens.first()
+        }
 
         registryManager.registerCredentials(
             request = object : RegisterCredentialsRequest(
                 DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
                 "openid4vp1.0-pnv",
-                PnvTokenRegistry.buildRegistryDatabase(testPhoneNumberTokens),
+                PnvTokenRegistry.buildRegistryDatabase(pnvTokens),
                 pnvMatcher
             ) {}
         )

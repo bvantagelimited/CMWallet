@@ -30,7 +30,8 @@ import java.security.interfaces.ECPrivateKey
 import java.security.spec.X509EncodedKeySpec
 
 data class HomeScreenUiState(
-    val credentials: List<CredentialItem>
+    val credentials: List<CredentialItem>,
+    val navigateToPnvManagement: Boolean = false
 )
 
 class HomeViewModel : ViewModel() {
@@ -51,6 +52,14 @@ class HomeViewModel : ViewModel() {
 
     fun deleteCredential(id: String) {
         CmWalletApplication.credentialRepo.deleteCredential(id)
+    }
+
+    fun navigateToPnvManagement() {
+        _uiState.update { it.copy(navigateToPnvManagement = true) }
+    }
+
+    fun onPnvManagementNavigated() {
+        _uiState.update { it.copy(navigateToPnvManagement = false) }
     }
 
     @OptIn(ExperimentalDigitalCredentialApi::class)
