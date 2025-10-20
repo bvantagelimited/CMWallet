@@ -89,28 +89,6 @@ fun HomeScreen(
         Column(
             modifier = Modifier.padding(innerPadding),
         ) {
-            Row(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                val activity = LocalActivity.current as MainActivity
-                Button(
-                    onClick = {
-                        viewModel.testIssuance(activity)
-                    }
-                ) {
-                    Text("Test Issuance")
-                }
-                Button(
-                    onClick = {
-                        viewModel.navigateToPnvManagement()
-                    }
-                ) {
-                    Text("Manage PNV Tokens")
-                }
-            }
             HorizontalDivider(thickness = 2.dp)
             CredentialList(
                 uiState.credentials,
