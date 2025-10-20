@@ -425,7 +425,7 @@ fun maybeHandlePnv(
 }
 
 fun getTempTokenForCredential(cred: PnvTokenRegistry): String {
-    return "ipification:mock${cred.phoneNumberHint ?: ""}"
+    return "ipification:mock:${cred.phoneNumberHint ?: ""}"
 }
 
 private const val PNV_TAG = "PnvHandler"
