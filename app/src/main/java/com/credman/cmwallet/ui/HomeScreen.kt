@@ -89,6 +89,20 @@ fun HomeScreen(
         Column(
             modifier = Modifier.padding(innerPadding),
         ) {
+            Row(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    onClick = {
+                        viewModel.navigateToPnvManagement()
+                    }
+                ) {
+                    Text("Manage PNV Tokens")
+                }
+            }
             HorizontalDivider(thickness = 2.dp)
             CredentialList(
                 uiState.credentials,
